@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[4]:
 
 
 from rdkit import Chem
@@ -92,19 +92,19 @@ if mol:
     else:
         print(f"Checking if 10 or less H-donors... RULE VIOLATION: HAS {lip.NumHAcceptors(mol)} H-ACCEPTORS")
 
-    mass = des.MolWt(mol)
+    mass = round(des.MolWt(mol),2)
     if mass <= 500:
-        print(f"Checking if molecular mass is 500 or less daltons... {des.MolWt(mol)} DALTONS")
+        print(f"Checking if molecular mass is 500 or less daltons... {round(des.MolWt(mol),2)} DALTONS")
         passed += 1
     else:
-        print(f"Checking if molecular mass is 500 or less daltons... RULE VIOLATION: {des.MolWt(mol)} DALTONS")
+        print(f"Checking if molecular mass is 500 or less daltons... RULE VIOLATION: {round(des.MolWt(mol),2)} DALTONS")
 
-    cLogP = Crippen.MolLogP(mol)
+    cLogP = round(Crippen.MolLogP(mol),2)
     if cLogP <= 5:
-        print(f"Checking if computational partition coefficient is 5 or less... IS {Crippen.MolLogP(mol)}")
+        print(f"Checking if computational partition coefficient is 5 or less... IS {round(Crippen.MolLogP(mol),2)}")
         passed += 1
     else:
-        print(f"Checking if computational partition coefficient is 5 or less... RULE VIOLATION: IS {Crippen.MolLogP(mol)}")
+        print(f"Checking if computational partition coefficient is 5 or less... RULE VIOLATION: IS {round(Crippen.MolLogP(mol),2)}")
 
     print(f"{passed} out of {total_rules} rules passed")
 
