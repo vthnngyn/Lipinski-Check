@@ -22,6 +22,10 @@ Lipinski's Rule of Five: https://en.wikipedia.org/wiki/Lipinski%27s_rule_of_five
 ### Launch
 * Python
 
+Sample SMILES: CN1CC[C@]23[C@@H]4[C@H]1CC5=C2C(=C(C=C5)O)O[C@H]3[C@H](C=C4)O
+
+Sample Hyperlink: https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/CID/5288826/record/SDF?record_type=2d&response_type=display  
+
 ### Example of Use
 
 Using ethanol as sample input in SMILES format:
