@@ -1,15 +1,19 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[4]:
-
-
 from rdkit import Chem
 from rdkit.Chem import Lipinski as lip
 from rdkit.Chem import Descriptors as des
 from rdkit.Chem import Crippen
+from rdkit.Chem import Draw
 import requests
 import os
+
+H_DONERS_LIMIT = 5
+H_ACCEPTORS_LIMIT = 10
+MOLECULAR_MASS_LIMIT = 500
+CLOGP_LIMIT = 5
+TOTAL_RULES = 4
 
 #command for loading molecule from input
 def load_molecule(user_input: str):
@@ -66,63 +70,58 @@ def load_molecule(user_input: str):
     print("Cannot read input")
     return None
 
-#prompt for input
-user_input = input("Input URL, local file path, or formatted text of MOL/SDF, or SMILES").strip()
-mol = load_molecule(user_input)
+def main():
+    #prompt for input
+    user_input = input("Input URL, local file path, or formatted text of MOL/SDF, or SMILES").strip()
+    mol = load_molecule(user_input)
 
-#counter for Lipinski's rules
-passed = 0
-total_rules = 4
+    #counter for Lipinski's rules
+    passed = 0
 
-#checking each of Lipinski's rules and whether inputted molecule passes or not
-if mol:
-    print("Loading molecule")
+    #checking each of Lipinski's rules and whether inputted molecule passes or not
+    if mol:
+        print("Loading molecule")
 
-    h_donors = lip.NumHDonors(mol)
-    if h_donors <= 5:
-        print(f"Checking if 5 or less H-donors... HAS {lip.NumHDonors(mol)} H-DONORS")
-        passed += 1
+        h_donors = lip.NumHDonors(mol)
+        if h_donors <= H_DONERS_LIMIT:
+            print(f"Checking if {H_DONERS_LIMIT} or less H-donors... HAS {h_donors} H-DONORS")
+            passed += 1
+        else:
+            print(f"Checking if {H_DONERS_LIMIT} or less H-donors... RULE VIOLATION: HAS {h_donors} H-DONORS")
+
+        h_acceptors = lip.NumHAcceptors(mol)
+        if h_acceptors <= H_ACCEPTORS_LIMIT:
+            print(f"Checking if {H_ACCEPTORS_LIMIT} or less H-acceptors... HAS {h_acceptors} H-ACCEPTORS")
+            passed += 1
+        else:
+            print(f"Checking if {H_ACCEPTORS_LIMIT} or less H-acceptors... RULE VIOLATION: HAS {h_acceptors} H-ACCEPTORS")
+
+        mass = round(des.MolWt(mol),2)
+        if mass <= MOLECULAR_MASS_LIMIT:
+            print(f"Checking if molecular mass is {MOLECULAR_MASS_LIMIT} or less daltons... {mass} DALTONS")
+            passed += 1
+        else:
+            print(f"Checking if molecular mass is {MOLECULAR_MASS_LIMIT} or less daltons... RULE VIOLATION: {mass} DALTONS")
+
+        cLogP = round(Crippen.MolLogP(mol),2)
+        if cLogP <= CLOGP_LIMIT:
+            print(f"Checking if computational partition coefficient is {CLOGP_LIMIT} or less... IS {cLogP}")
+            passed += 1
+        else:
+            print(f"Checking if computational partition coefficient is {CLOGP_LIMIT} or less... RULE VIOLATION: IS {cLogP}")
+
+        print(f"{passed} out of {TOTAL_RULES}")
     else:
-        print(f"Checking if 5 or less H-donors... RULE VIOLATION: HAS {lip.NumHDonors(mol)} H-DONORS")
+        print("Molecule could not be loaded")
 
-    h_acceptors = lip.NumHAcceptors(mol)
-    if h_acceptors <= 10:
-        print(f"Checking if 10 or less H-acceptors... HAS {lip.NumHAcceptors(mol)} H-ACCEPTORS")
-        passed += 1
+    if passed < TOTAL_RULES:
+        print("Failed Lipinski check")
     else:
-        print(f"Checking if 10 or less H-donors... RULE VIOLATION: HAS {lip.NumHAcceptors(mol)} H-ACCEPTORS")
+        print("Passed Lipinski check")
 
-    mass = round(des.MolWt(mol),2)
-    if mass <= 500:
-        print(f"Checking if molecular mass is 500 or less daltons... {round(des.MolWt(mol),2)} DALTONS")
-        passed += 1
-    else:
-        print(f"Checking if molecular mass is 500 or less daltons... RULE VIOLATION: {round(des.MolWt(mol),2)} DALTONS")
+    #draw molecule
+    img = Draw.MolToImage(mol, size=(300, 300))
+    img.show()
 
-    cLogP = round(Crippen.MolLogP(mol),2)
-    if cLogP <= 5:
-        print(f"Checking if computational partition coefficient is 5 or less... IS {round(Crippen.MolLogP(mol),2)}")
-        passed += 1
-    else:
-        print(f"Checking if computational partition coefficient is 5 or less... RULE VIOLATION: IS {round(Crippen.MolLogP(mol),2)}")
-
-    print(f"{passed} out of {total_rules} rules passed")
-
-    if passed == total_rules:
-        print("Passed Lipinski's")
-    else:
-        print("Failed Lipinski's")
-
-else:
-    print("Unable to load molecule")
-
-#print molecular structure
-mol
-
-
-
-# In[ ]:
-
-
-
-
+if __name__ == "__main__":
+    main()
